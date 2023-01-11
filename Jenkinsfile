@@ -2,7 +2,7 @@ node{
 	stage('Git Checkout'){
      		git 'https://github.com/Jprakazjpr/my-app'
    }
-    	stage('Compile-Package'){
+    	stage('Build-Package'){
 
  		def mvnHome =  tool name: 'maven4', type: 'maven'   
       		sh "${mvnHome}/bin/mvn clean package"
@@ -18,14 +18,14 @@ node{
           
       		sh 'docker build -t jprakazjp/myweb:0.0.3 .'
   }
-      stage('Docker Image Push'){
+      stage('Puch Docker Image'){
       		withCredentials([string(credentialsId: 'dockerPass', variable: 'dockerPassword')]) {
       		sh "docker login -u jprakazjp -p ${dockerPassword}"
         	}
       		sh 'docker push jprakazjp/myweb:0.0.3'
    }
 
-      stage('Nexus image docker push'){
+      stage('Docker image push to nexus'){
    		sh "docker login -u admin -p admin 3.239.102.203:8083"
    		sh "docker tag jprakazjp/myweb:0.0.3 3.239.102.203:8083/jpapp:1.0.0"
    		sh 'docker push 3.239.102.203:8083/jpapp:1.0.0'
@@ -38,7 +38,7 @@ node{
 		//  do nothing if there is an exception
 	    }
     }
-      	stage('Docker deployment'){
+      	stage('Docker deployment Done'){
       		sh 'docker run -d -p 8090:8080 --name myapp jprakazjp/myweb:0.0.3' 
    }
 }
